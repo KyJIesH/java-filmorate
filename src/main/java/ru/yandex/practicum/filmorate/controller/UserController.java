@@ -26,7 +26,6 @@ public class UserController {
         if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
         }
-        // без этого не проходят 5 тестов , а с этим 10
         user.setId(idGenerator++);
         users.put(user.getId(), user);
         return user;

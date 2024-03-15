@@ -4,12 +4,12 @@ import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.time.LocalDate;
 
+@SuppressWarnings("checkstyle:Regexp")
 public class DateValid implements ConstraintValidator<DateValidator, LocalDate> {
+    LocalDate birthdayMovie = LocalDate.of(1895, 12, 28);
 
     @Override
     public boolean isValid(LocalDate data, ConstraintValidatorContext context) {
-
-        LocalDate birthdayMovie = LocalDate.of(1895, 12, 28);
 
         if (data.isAfter(birthdayMovie)) {
             return true;

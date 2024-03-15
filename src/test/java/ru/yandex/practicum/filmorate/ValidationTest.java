@@ -74,9 +74,11 @@ public class ValidationTest {
         assertFalse(validator.validate(film).isEmpty());
         film.setDescription(null);
         assertFalse(validator.validate(film).isEmpty());
-        film.setDescription("11111111111111111111111111111111111111111111111111111111111111" +
-                "11111111111111111111111111111111111111111111111111111111111111111111111111" +
-                "11111111111111111111111111111111111111111111111111111111111111111111111111");
+        StringBuilder sb = new StringBuilder();
+        for (int i = 1; i < 202; i++) {
+            sb.append("*");
+        }
+        film.setDescription(sb.toString());
         assertFalse(validator.validate(film).isEmpty());
     }
 

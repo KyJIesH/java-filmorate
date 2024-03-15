@@ -9,11 +9,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Past;
 import java.time.LocalDate;
 
-/**
- * User.
- */
 @Data
-@NotNull
 public class User {
     private int id;
     @NotBlank(message = "Пустой email")
