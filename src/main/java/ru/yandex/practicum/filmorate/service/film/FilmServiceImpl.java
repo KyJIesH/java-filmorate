@@ -3,12 +3,15 @@ package ru.yandex.practicum.filmorate.service.film;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.util.*;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -36,45 +39,37 @@ public class FilmServiceImpl implements FilmService {
     }
 
     @Override
-    public Film getFilm(Long id) {
+    public Film getFilm(Long id) throws NotFoundException {
         log.info("{} - Обработка запроса на получение фильма по id {}", TAG, id);
-        Film film = filmStorage.getFilm(id);
-        if (film == null) {
-            return null;
-        }
-        return film;
+        return filmStorage.getFilm(id);
     }
 
     @Override
-    public Film updateFilm(Film film) {
+    public Film updateFilm(Film film) throws NotFoundException {
         log.info("{} - Обработка запроса на обновление фильма {}", TAG, film);
         return filmStorage.updateFilm(film);
     }
 
     @Override
-    public void deleteFilm(Long id) {
+    public void deleteFilm(Long id) throws NotFoundException {
         log.info("{} - Обработка запроса на удаление фильма по id {}", TAG, id);
         filmStorage.deleteFilm(id);
     }
 
     @Override
-    public void putLikesFilm(Long filmId, Long userId) {
+    public void putLikesFilm(Long filmId, Long userId) throws NotFoundException {
         log.info("{} - Обработка запроса на добавление лайка фильма {} пользователем с id {}", TAG, filmId, userId);
         Film film = filmStorage.getFilm(filmId);
-        if (film == null || userStorage.getUser(userId) == null) {
-            throw new NotFoundException("Ф");
-        }
-        film.getLikes().add(userId);
+        User user = userStorage.getUser(userId); //Получение пользователя для проверки на исключение
+        film.getLikes().add(user.getId());
     }
 
     @Override
-    public void deleteLikesFilm(Long filmId, Long userId) {
+    public void deleteLikesFilm(Long filmId, Long userId) throws NotFoundException {
         log.info("{} - Обработка запроса на удаление лайка фильма {} пользователем с id {}", TAG, filmId, userId);
         Film film = filmStorage.getFilm(filmId);
-        if (film == null || userStorage.getUser(userId) == null) {
-            throw new ValidationException(""); // Обработать
-        }
-        film.getLikes().remove(userId);
+        User user = userStorage.getUser(userId); //Получение пользователя для проверки на исключение
+        film.getLikes().remove(user.getId());
     }
 
     @Override

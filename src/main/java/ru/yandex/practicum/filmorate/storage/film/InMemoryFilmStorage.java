@@ -2,7 +2,7 @@ package ru.yandex.practicum.filmorate.storage.film;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.ArrayList;
@@ -34,35 +34,30 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Film getFilm(Long id) {
+    public Film getFilm(Long id) throws NotFoundException {
         log.info("{} - Попытка получения фильма по id {}", TAG, id);
         if (id == null || id <= 0 || !films.containsKey(id)) {
             log.error("{} - некорректный id {}", TAG, id);
-            return null;
+            throw new NotFoundException("Фильм не найден");
         }
         return films.get(id);
     }
 
     @Override
-    public Film updateFilm(Film film) {
+    public Film updateFilm(Film film) throws NotFoundException {
         log.info("{} - Попытка обновления фильма {}", TAG, film);
-        if (!films.containsKey(film.getId())) {
-            throw new ValidationException("id не найден"); // поменять на другой
-        }
+        // проверка на исключение
+        getFilm(film.getId());
         films.put(film.getId(), film);
         return film;
     }
 
     @Override
-    public void deleteFilm(Long id) {
+    public void deleteFilm(Long id) throws NotFoundException {
         log.info("{} - Попытка удаления фильма по id {}", TAG, id);
-        if (id == null || id <= 0) {
-            log.error("{} - некорректный id {}", TAG, id);
-            throw new ValidationException("id не найден"); // поменять на другой
-        }
-        if (films.containsKey(id)) {
+        if (!films.containsKey(id)) {
             log.error("{} - по данному id {} нет фильма", TAG, id);
-            throw new ValidationException("id не найден"); // поменять на другой
+            throw new NotFoundException("Удаляемый фильм не найден");
         }
         films.remove(id);
     }

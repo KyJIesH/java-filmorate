@@ -2,7 +2,7 @@ package ru.yandex.practicum.filmorate.storage.user;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.ArrayList;
@@ -38,35 +38,30 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public User getUser(Long id) {
+    public User getUser(Long id) throws NotFoundException {
         log.info("{} - Попытка получения пользователя по id {}", TAG, id);
-        if (id == null || id <= 0 || !users.containsKey(id)) {
-            log.error("{} - некорректный id {}", TAG, id);
-            return null;
+        if (!users.containsKey(id)) {
+            log.error("{} - Пользоваетель с id {} не найден", TAG, id);
+            throw new NotFoundException("Пользователь не найден");
         }
         return users.get(id);
     }
 
     @Override
-    public User updateUser(User user) {
+    public User updateUser(User user) throws NotFoundException {
         log.info("{} - Попытка обновления пользователя {}", TAG, user);
-        if (!users.containsKey(user.getId())) {
-            throw new ValidationException("id не найден"); // поменять на другой
-        }
+        // Проверка на исключение
+        getUser(user.getId());
         users.put(user.getId(), user);
         return user;
     }
 
     @Override
-    public void deleteUser(Long id) {
+    public void deleteUser(Long id) throws NotFoundException {
         log.info("{} - Попытка удаления пользователя по id {}", TAG, id);
-        if (id == null || id <= 0) {
-            log.error("{} - некорректный id {}", TAG, id);
-            throw new ValidationException("id не найден"); // поменять на другой
-        }
         if (users.containsKey(id)) {
-            log.error("{} - по данному id {} нет пользователя", TAG, id);
-            throw new ValidationException("id не найден"); // поменять на другой
+            log.error("{} - По данному id {} нет пользователя", TAG, id);
+            throw new NotFoundException("Удаляемый пользователь не найден");
         }
         users.remove(id);
     }
