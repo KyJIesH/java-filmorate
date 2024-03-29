@@ -8,10 +8,7 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -75,23 +72,27 @@ public class FilmServiceImpl implements FilmService {
     @Override
     public Set<Film> getPopularFilm(Long count) {
         log.info("{} - Обработка запроса на получение {} наиболее популярных фильмов по количеству лайков", TAG, count);
+        Set<Film> temp = new HashSet<>();
+        temp.addAll(filmStorage.getAllFilms());
         Set<Film> filmsLikes = new TreeSet<>(new Comparator<Film>() {
             @Override
             public int compare(Film f1, Film f2) {
                 if (f1.getLikes().size() == f2.getLikes().size()) {
                     return 0;
-                } else if (f1.getLikes().size() > f2.getLikes().size()) {
+                } else if (f1.getLikes().size() < f2.getLikes().size()) {
                     return 1;
                 } else {
                     return -1;
                 }
             }
         });
-        filmsLikes.addAll(filmStorage.getAllFilms());
-        return filmsLikes.stream()
-                .skip(filmsLikes.size() > count ? filmsLikes.size() - count : 0)
+
+        filmsLikes.addAll(temp.stream()
+                .skip(temp.size() > count ? temp.size() - count : 0)
                 .filter(film -> !film.getLikes().isEmpty())
                 .limit(count)
-                .collect(Collectors.toSet());
+                .collect(Collectors.toSet()));
+        return filmsLikes;
+
     }
 }

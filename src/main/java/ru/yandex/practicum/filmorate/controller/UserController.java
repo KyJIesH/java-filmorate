@@ -73,7 +73,7 @@ public class UserController {
         return new ResponseEntity<>(userService.updateUser(user), HttpStatus.OK);
     }
 
-    @PutMapping("/{id}/friends/{friendId}")
+    @PutMapping(value = "/{id}/friends/{friendId}")
     public ResponseEntity<String> putFriendsUser(@PathVariable Long id,
                                                  @PathVariable Long friendId) throws ValidationException, NotFoundException {
         log.info("{} -  Пришел запрос на добавление пользователя {} в друзья к пользователю {}", TAG, id, friendId);
@@ -84,8 +84,7 @@ public class UserController {
             throw new ValidationException("Некорректный формат id второго пользователя");
         }
         userService.putFriendsUser(id, friendId);
-        return new ResponseEntity<>("Пользователь с id: " + id + " - добавлен в друзья к пользователю" +
-                " с id: " + friendId, HttpStatus.OK);
+        return new ResponseEntity<>(null, HttpStatus.OK);
     }
 
     @DeleteMapping

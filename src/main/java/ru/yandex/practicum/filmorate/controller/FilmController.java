@@ -26,7 +26,7 @@ public class FilmController {
 
     @PostMapping
     public ResponseEntity<Film> createFilm(@RequestBody @Valid Film film) {
-        log.info("{} - Пришел запрос на добавление фильма {}",TAG, film);
+        log.info("{} - Пришел запрос на добавление фильма {}", TAG, film);
         return new ResponseEntity<>(filmService.createFilm(film), HttpStatus.CREATED);
     }
 
@@ -69,8 +69,7 @@ public class FilmController {
             throw new ValidationException("Некорректный формат id пользователя");
         }
         filmService.putLikesFilm(id, userId);
-        return new ResponseEntity<>("Лайк фильму с id: " + id + " - проставлен пользователем с id: " + userId,
-                HttpStatus.OK);
+        return new ResponseEntity<>(null, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
