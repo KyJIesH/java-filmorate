@@ -79,7 +79,7 @@ public class FilmController {
             throw new ValidationException("Некорректный формат id");
         }
         filmService.deleteFilm(id);
-        return new ResponseEntity<>("Фильм с id: " + id + " - удален", HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
     }
 
     @DeleteMapping("/{id}/like/{userId}")
@@ -93,7 +93,6 @@ public class FilmController {
             throw new ValidationException("Некорректный формат id пользователя");
         }
         filmService.deleteLikesFilm(id, userId);
-        return new ResponseEntity<>("Лайк фильму с id: " + id + " - удален пользователем с id: " + userId,
-                HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
     }
 }

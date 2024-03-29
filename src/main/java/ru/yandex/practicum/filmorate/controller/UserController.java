@@ -94,7 +94,7 @@ public class UserController {
             throw new ValidationException("Некорректный формат id");
         }
         userService.deleteUser(id);
-        return new ResponseEntity<>("Пользователь с id: " + id + " - удален", HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
     }
 
     @DeleteMapping("/{id}/friends/{friendId}")
@@ -108,7 +108,6 @@ public class UserController {
             throw new ValidationException("Некорректный формат id второго пользователя");
         }
         userService.deleteFriendsUser(id, friendId);
-        return new ResponseEntity<>("Пользователь с id: " + id + " - удален из друзей у пользователя" +
-                " с id: " + friendId, HttpStatus.OK);
+        return new ResponseEntity<>(null, HttpStatus.OK);
     }
 }

@@ -47,6 +47,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteUser(Long id) throws NotFoundException {
         log.info("{} - Обработка запроса на удаление пользователя по id {}", TAG, id);
+        Set<Long> friendsUser = userStorage.getUser(id).getFriends();
+        for (Long idUser : friendsUser) {
+            userStorage.getUser(idUser).getFriends().remove(id);
+        }
         userStorage.deleteUser(id);
     }
 
@@ -62,7 +66,12 @@ public class UserServiceImpl implements UserService {
     public void deleteFriendsUser(Long firstUserId, Long secondUserId) throws NotFoundException {
         log.info("{} - Обработка запроса на удаление пользователя {} из друзей у пользователя {}",
                 TAG, firstUserId, secondUserId);
-        userStorage.getUser(firstUserId).getFriends().remove(secondUserId);
+        try {
+            userStorage.getUser(firstUserId).getFriends().remove(secondUserId);
+            userStorage.getUser(secondUserId).getFriends().remove(firstUserId);
+        } catch (NotFoundException e) {
+            log.error("{} - Ошибка при попытке удаления друга у пользователя", TAG);
+        }
     }
 
     @Override
