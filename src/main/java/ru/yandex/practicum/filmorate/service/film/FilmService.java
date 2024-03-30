@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.service.film;
 
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.List;
@@ -11,15 +10,17 @@ public interface FilmService {
 
     List<Film> getAllFilms();
 
-    Film getFilm(Long id) throws NotFoundException;
+    Film getFilm(Long id);
 
-    Film updateFilm(Film film) throws NotFoundException;
+    Film updateFilm(Film film);
 
-    void deleteFilm(Long id) throws NotFoundException;
+    void deleteFilm(Long id);
 
-    void putLikesFilm(Long filmId, Long userId) throws NotFoundException;
+    void putLikesFilm(Long filmId, Long userId);
 
-    void deleteLikesFilm(Long filmId, Long userId) throws NotFoundException;
+    void deleteLikesFilm(Long filmId, Long userId);
 
     Set<Film> getPopularFilm(Long count);
+
+    void checkFilmId(Long id);
 }

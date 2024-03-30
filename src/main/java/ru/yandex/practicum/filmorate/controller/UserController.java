@@ -1,11 +1,10 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.user.UserService;
 
@@ -16,13 +15,10 @@ import java.util.Set;
 @RestController
 @RequestMapping("/users")
 @Slf4j
+@AllArgsConstructor
 public class UserController {
     private static final String TAG = "USER CONTROLLER";
     private final UserService userService;
-
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
 
     @PostMapping
     public ResponseEntity<User> createUser(@RequestBody @Valid User user) {
@@ -37,76 +33,58 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUser(@PathVariable Long id) throws ValidationException, NotFoundException {
+    public ResponseEntity<User> getUser(@PathVariable Long id) {
         log.info("{} -  Пришел запрос на получение пользователя по id {}", TAG, id);
-        if (id == null || id <= 0) {
-            throw new ValidationException("Некорректный формат id");
-        }
+        userService.checkUserId(id);
         return new ResponseEntity<>(userService.getUser(id), HttpStatus.OK);
     }
 
     @GetMapping("/{id}/friends")
-    public ResponseEntity<Set<User>> getFriendsUser(@PathVariable Long id) throws ValidationException, NotFoundException {
+    public ResponseEntity<Set<User>> getFriendsUser(@PathVariable Long id) {
         log.info("{} - Пришел запрос на получение всех друзей пользователя по id {}", TAG, id);
-        if (id == null || id <= 0) {
-            throw new ValidationException("Некорректный формат id");
-        }
+        userService.checkUserId(id);
         return new ResponseEntity<>(userService.getFriendsUser(id), HttpStatus.OK);
     }
 
     @GetMapping("/{id}/friends/common/{otherId}")
     public ResponseEntity<Set<User>> getCommonFriends(@PathVariable Long id,
-                                                      @PathVariable Long otherId) throws ValidationException, NotFoundException {
+                                                      @PathVariable Long otherId) {
         log.info("{} - Пришел запрос на получение общих друзей пользователей {} и {}", TAG, id, otherId);
-        if (id == null || id <= 0) {
-            throw new ValidationException("Некорректный формат id первого пользователя");
-        }
-        if (otherId == null || otherId <= 0) {
-            throw new ValidationException("Некорректный формат id второго пользователя");
-        }
+        userService.checkUserId(id);
+        userService.checkUserId(otherId);
         return new ResponseEntity<>(userService.getCommonFriends(id, otherId), HttpStatus.OK);
     }
 
     @PutMapping
-    public ResponseEntity<User> updateUser(@RequestBody @Valid User user) throws NotFoundException {
+    public ResponseEntity<User> updateUser(@RequestBody @Valid User user) {
         log.info("{} -  Пришел запрос на обновление пользователя {}", TAG, user);
         return new ResponseEntity<>(userService.updateUser(user), HttpStatus.OK);
     }
 
     @PutMapping(value = "/{id}/friends/{friendId}")
     public ResponseEntity<String> putFriendsUser(@PathVariable Long id,
-                                                 @PathVariable Long friendId) throws ValidationException, NotFoundException {
+                                                 @PathVariable Long friendId) {
         log.info("{} -  Пришел запрос на добавление пользователя {} в друзья к пользователю {}", TAG, id, friendId);
-        if (id == null || id <= 0) {
-            throw new ValidationException("Некорректный формат id первого пользователя");
-        }
-        if (friendId == null || friendId <= 0) {
-            throw new ValidationException("Некорректный формат id второго пользователя");
-        }
+        userService.checkUserId(id);
+        userService.checkUserId(friendId);
         userService.putFriendsUser(id, friendId);
         return new ResponseEntity<>(null, HttpStatus.OK);
     }
 
     @DeleteMapping
-    public ResponseEntity<String> deleteUser(Long id) throws ValidationException, NotFoundException {
+    public ResponseEntity<String> deleteUser(Long id) {
         log.info("{} -  Пришел запрос на удаление пользователя по id {}", TAG, id);
-        if (id == null || id <= 0) {
-            throw new ValidationException("Некорректный формат id");
-        }
+        userService.checkUserId(id);
         userService.deleteUser(id);
         return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
     }
 
     @DeleteMapping("/{id}/friends/{friendId}")
     public ResponseEntity<String> deleteFriendsUser(@PathVariable Long id,
-                                                    @PathVariable Long friendId) throws ValidationException, NotFoundException {
+                                                    @PathVariable Long friendId) {
         log.info("{} -  Пришел запрос на удаление пользователя {} из друзей у пользователя {}", TAG, id, friendId);
-        if (id == null || id <= 0) {
-            throw new ValidationException("Некорректный формат id первого пользователя");
-        }
-        if (friendId == null || friendId <= 0) {
-            throw new ValidationException("Некорректный формат id второго пользователя");
-        }
+        userService.checkUserId(id);
+        userService.checkUserId(friendId);
         userService.deleteFriendsUser(id, friendId);
         return new ResponseEntity<>(null, HttpStatus.OK);
     }

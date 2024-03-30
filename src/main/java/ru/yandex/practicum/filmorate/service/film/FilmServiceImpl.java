@@ -1,8 +1,9 @@
 package ru.yandex.practicum.filmorate.service.film;
 
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
@@ -13,15 +14,11 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
+@AllArgsConstructor
 public class FilmServiceImpl implements FilmService {
     private static final String TAG = "FILM SERVICE";
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
-
-    public FilmServiceImpl(FilmStorage filmStorage, UserStorage userStorage) {
-        this.filmStorage = filmStorage;
-        this.userStorage = userStorage;
-    }
 
     @Override
     public Film createFilm(Film film) {
@@ -36,25 +33,25 @@ public class FilmServiceImpl implements FilmService {
     }
 
     @Override
-    public Film getFilm(Long id) throws NotFoundException {
+    public Film getFilm(Long id) {
         log.info("{} - Обработка запроса на получение фильма по id {}", TAG, id);
         return filmStorage.getFilm(id);
     }
 
     @Override
-    public Film updateFilm(Film film) throws NotFoundException {
+    public Film updateFilm(Film film) {
         log.info("{} - Обработка запроса на обновление фильма {}", TAG, film);
         return filmStorage.updateFilm(film);
     }
 
     @Override
-    public void deleteFilm(Long id) throws NotFoundException {
+    public void deleteFilm(Long id) {
         log.info("{} - Обработка запроса на удаление фильма по id {}", TAG, id);
         filmStorage.deleteFilm(id);
     }
 
     @Override
-    public void putLikesFilm(Long filmId, Long userId) throws NotFoundException {
+    public void putLikesFilm(Long filmId, Long userId) {
         log.info("{} - Обработка запроса на добавление лайка фильма {} пользователем с id {}", TAG, filmId, userId);
         Film film = filmStorage.getFilm(filmId);
         User user = userStorage.getUser(userId); //Получение пользователя для проверки на исключение
@@ -62,7 +59,7 @@ public class FilmServiceImpl implements FilmService {
     }
 
     @Override
-    public void deleteLikesFilm(Long filmId, Long userId) throws NotFoundException {
+    public void deleteLikesFilm(Long filmId, Long userId) {
         log.info("{} - Обработка запроса на удаление лайка фильма {} пользователем с id {}", TAG, filmId, userId);
         Film film = filmStorage.getFilm(filmId);
         User user = userStorage.getUser(userId); //Получение пользователя для проверки на исключение
@@ -92,5 +89,11 @@ public class FilmServiceImpl implements FilmService {
                 .limit(count)
                 .collect(Collectors.toSet()));
         return filmsLikes;
+    }
+
+    public void checkFilmId(Long id) {
+        if (id == null || id <= 0) {
+            throw new ValidationException("Некорректный формат id фильма");
+        }
     }
 }

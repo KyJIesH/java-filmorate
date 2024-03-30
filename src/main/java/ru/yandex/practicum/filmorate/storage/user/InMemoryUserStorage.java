@@ -38,7 +38,7 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public User getUser(Long id) throws NotFoundException {
+    public User getUser(Long id) {
         log.info("{} - Попытка получения пользователя по id {}", TAG, id);
         if (!users.containsKey(id)) {
             log.error("{} - Пользоваетель с id {} не найден", TAG, id);
@@ -48,7 +48,7 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public User updateUser(User user) throws NotFoundException {
+    public User updateUser(User user) {
         log.info("{} - Попытка обновления пользователя {}", TAG, user);
         // Проверка на исключение
         getUser(user.getId());
@@ -57,7 +57,7 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public void deleteUser(Long id) throws NotFoundException {
+    public void deleteUser(Long id) {
         log.info("{} - Попытка удаления пользователя по id {}", TAG, id);
         if (users.containsKey(id)) {
             log.error("{} - По данному id {} нет пользователя", TAG, id);
