@@ -76,7 +76,7 @@ public class FilmServiceImpl implements FilmService {
         Set<Film> filmsLikes = new TreeSet<>(new Comparator<Film>() {
             @Override
             public int compare(Film f1, Film f2) {
-                if (f1.getLikes().size() == f2.getLikes().size()) {
+                if (f1.getLikes().size() == f2.getLikes().size() && Objects.equals(f1.getId(), f2.getId())) {
                     return 0;
                 } else if (f1.getLikes().size() < f2.getLikes().size()) {
                     return 1;
@@ -85,8 +85,8 @@ public class FilmServiceImpl implements FilmService {
                 }
             }
         });
-
-        filmsLikes.addAll(temp.stream()
+        filmsLikes.addAll(
+                temp.stream()
                 .skip(temp.size() > count ? temp.size() - count : 0)
                 .filter(film -> !film.getLikes().isEmpty())
                 .limit(count)

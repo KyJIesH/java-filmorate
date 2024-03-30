@@ -66,8 +66,8 @@ public class UserServiceImpl implements UserService {
     public void deleteFriendsUser(Long firstUserId, Long secondUserId) throws NotFoundException {
         log.info("{} - Обработка запроса на удаление пользователя {} из друзей у пользователя {}",
                 TAG, firstUserId, secondUserId);
-            userStorage.getUser(firstUserId).getFriends().remove(secondUserId);
         try {
+            userStorage.getUser(firstUserId).getFriends().remove(secondUserId);
             userStorage.getUser(secondUserId).getFriends().remove(firstUserId);
         } catch (NotFoundException e) {
             log.error("{} - Ошибка при попытке удаления друга у пользователя", TAG);
