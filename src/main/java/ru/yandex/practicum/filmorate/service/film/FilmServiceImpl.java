@@ -72,8 +72,7 @@ public class FilmServiceImpl implements FilmService {
     @Override
     public Set<Film> getPopularFilm(Long count) {
         log.info("{} - Обработка запроса на получение {} наиболее популярных фильмов по количеству лайков", TAG, count);
-        Set<Film> temp = new HashSet<>();
-        temp.addAll(filmStorage.getAllFilms());
+        Set<Film> temp = new HashSet<>(filmStorage.getAllFilms());
         Set<Film> filmsLikes = new TreeSet<>(new Comparator<Film>() {
             @Override
             public int compare(Film f1, Film f2) {
@@ -93,6 +92,5 @@ public class FilmServiceImpl implements FilmService {
                 .limit(count)
                 .collect(Collectors.toSet()));
         return filmsLikes;
-
     }
 }

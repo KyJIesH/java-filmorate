@@ -36,8 +36,8 @@ public class UserController {
         return new ResponseEntity<>(userService.getAllUsers(), HttpStatus.OK);
     }
 
-    @GetMapping("/id")
-    public ResponseEntity<User> getUser(@RequestParam Long id) throws ValidationException, NotFoundException {
+    @GetMapping("/{id}")
+    public ResponseEntity<User> getUser(@PathVariable Long id) throws ValidationException, NotFoundException {
         log.info("{} -  Пришел запрос на получение пользователя по id {}", TAG, id);
         if (id == null || id <= 0) {
             throw new ValidationException("Некорректный формат id");
