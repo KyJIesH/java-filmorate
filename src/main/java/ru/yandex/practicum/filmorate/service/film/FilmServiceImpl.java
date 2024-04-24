@@ -7,6 +7,9 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.genre.GenreDao;
+import ru.yandex.practicum.filmorate.storage.like.LikeDao;
+import ru.yandex.practicum.filmorate.storage.mpaRating.MpaRatingDao;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.*;
@@ -19,23 +22,37 @@ public class FilmServiceImpl implements FilmService {
     private static final String TAG = "FILM SERVICE";
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
+    private final GenreDao genreDao;
+    private final MpaRatingDao mpaRatingDao;
+    private final LikeDao likeDao;
 
     @Override
     public Film createFilm(Film film) {
         log.info("{} - Обработка запроса на добавление фильма", TAG);
-        return filmStorage.createFilm(film);
+        Film result = filmStorage.createFilm(film);
+        genreDao.addGenreFilm(result.getId(), film.getGenres());
+        result.setGenres(genreDao.getAllGenresFilms(result.getId()));
+        return result;
     }
 
     @Override
     public List<Film> getAllFilms() {
         log.info("{} - Обработка запроса на получение всех фильмов", TAG);
-        return filmStorage.getAllFilms();
+        List<Film> films = filmStorage.getAllFilms();
+        for (Film film : films) {
+            film.setGenres(genreDao.getAllGenresFilms(film.getId()));
+            film.setMpaRating(mpaRatingDao.getRatingFilm(film.getMpaRating().getId()));
+        }
+        return films;
     }
 
     @Override
     public Film getFilm(Long id) {
         log.info("{} - Обработка запроса на получение фильма по id {}", TAG, id);
-        return filmStorage.getFilm(id);
+        Film film = filmStorage.getFilm(id);
+        film.setGenres(genreDao.getAllGenresFilms(id));
+        film.setMpaRating(mpaRatingDao.getRatingFilm(film.getMpaRating().getId()));
+        return film;
     }
 
     @Override
@@ -55,6 +72,7 @@ public class FilmServiceImpl implements FilmService {
         log.info("{} - Обработка запроса на добавление лайка фильма {} пользователем с id {}", TAG, filmId, userId);
         Film film = filmStorage.getFilm(filmId);
         User user = userStorage.getUser(userId); //Получение пользователя для проверки на исключение
+        likeDao.addLike(filmId, userId);
         film.getLikes().add(user.getId());
     }
 
@@ -63,6 +81,7 @@ public class FilmServiceImpl implements FilmService {
         log.info("{} - Обработка запроса на удаление лайка фильма {} пользователем с id {}", TAG, filmId, userId);
         Film film = filmStorage.getFilm(filmId);
         User user = userStorage.getUser(userId); //Получение пользователя для проверки на исключение
+        likeDao.deleteLike(filmId, userId);
         film.getLikes().remove(user.getId());
     }
 
@@ -84,10 +103,10 @@ public class FilmServiceImpl implements FilmService {
         });
         filmsLikes.addAll(
                 temp.stream()
-                .skip(temp.size() > count ? temp.size() - count : 0)
-                .filter(film -> !film.getLikes().isEmpty())
-                .limit(count)
-                .collect(Collectors.toSet()));
+                        .skip(temp.size() > count ? temp.size() - count : 0)
+                        .filter(film -> !film.getLikes().isEmpty())
+                        .limit(count)
+                        .collect(Collectors.toSet()));
         return filmsLikes;
     }
 

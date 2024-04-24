@@ -6,9 +6,11 @@ import ru.yandex.practicum.filmorate.annotation.DateValidator;
 import ru.yandex.practicum.filmorate.annotation.DurationValidator;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.Duration;
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -27,5 +29,8 @@ public class Film {
     @DurationValidator
     @JsonFormat(shape = NUMBER_INT)
     private Duration duration;
+    @NotNull(message = "Рейтинг не может быть пустым")
+    private MpaRating mpaRating;
+    private Set<Genre> genres = new HashSet<>();
     private Set<Long> likes = new TreeSet<>();
 }

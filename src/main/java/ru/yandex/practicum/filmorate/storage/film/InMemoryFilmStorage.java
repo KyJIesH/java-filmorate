@@ -44,6 +44,11 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
+    public List<Film> getFilmsByIds(List<Long> ids) {
+        return null;
+    }
+
+    @Override
     public Film updateFilm(Film film) {
         log.info("{} - Попытка обновления фильма {}", TAG, film);
         // проверка на исключение
