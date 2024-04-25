@@ -40,8 +40,9 @@ public class FilmServiceImpl implements FilmService {
         log.info("{} - Обработка запроса на получение всех фильмов", TAG);
         List<Film> films = filmStorage.getAllFilms();
         for (Film film : films) {
+            film.setLikes(likeDao.getLikesFilm(film.getId()));
             film.setGenres(genreDao.getAllGenresFilms(film.getId()));
-            film.setMpaRating(mpaRatingDao.getRatingFilm(film.getMpaRating().getId()));
+            film.setMpa(mpaRatingDao.getRatingFilm(film.getMpa().getId()));
         }
         return films;
     }
@@ -51,7 +52,7 @@ public class FilmServiceImpl implements FilmService {
         log.info("{} - Обработка запроса на получение фильма по id {}", TAG, id);
         Film film = filmStorage.getFilm(id);
         film.setGenres(genreDao.getAllGenresFilms(id));
-        film.setMpaRating(mpaRatingDao.getRatingFilm(film.getMpaRating().getId()));
+        film.setMpa(mpaRatingDao.getRatingFilm(film.getMpa().getId()));
         return film;
     }
 
@@ -88,7 +89,7 @@ public class FilmServiceImpl implements FilmService {
     @Override
     public Set<Film> getPopularFilm(Long count) {
         log.info("{} - Обработка запроса на получение {} наиболее популярных фильмов по количеству лайков", TAG, count);
-        Set<Film> temp = new HashSet<>(filmStorage.getAllFilms());
+        Set<Film> temp = new HashSet<>(getAllFilms());
         Set<Film> filmsLikes = new TreeSet<>(new Comparator<Film>() {
             @Override
             public int compare(Film f1, Film f2) {

@@ -18,7 +18,7 @@ public class FilmMapper implements RowMapper<Film> {
     public Film mapRow(ResultSet rs, int rowNum) throws SQLException {
         log.info("{} - Начат mapping сущности film", TAG);
         MpaRating mpaRating = new MpaRating();
-        Integer mpaRatingId = rs.getInt("rating_id");
+        Integer mpaRatingId = rs.getInt("mpa_rating_id");
         mpaRating.setId(mpaRatingId);
 
         Film film = new Film();
@@ -26,13 +26,13 @@ public class FilmMapper implements RowMapper<Film> {
         String name = rs.getString("name");
         String description = rs.getString("description");
         LocalDate releaseDate = rs.getDate("release_date").toLocalDate();
-        Duration duration = Duration.ofMinutes(rs.getInt("duration_minutes"));
+        Duration duration = Duration.ofSeconds(rs.getInt("duration_minutes"));
         film.setId(id);
         film.setName(name);
         film.setDescription(description);
         film.setReleaseDate(releaseDate);
         film.setDuration(duration);
-        film.setMpaRating(mpaRating);
+        film.setMpa(mpaRating);
         log.info("{} - Завершен mapping сущности film", TAG);
         return film;
     }

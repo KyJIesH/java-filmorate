@@ -3,10 +3,12 @@ package ru.yandex.practicum.filmorate.storage.user;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.friends.FriendsDao;
 import ru.yandex.practicum.filmorate.storage.mapper.UserMapper;
@@ -63,15 +65,20 @@ public class UserDbStorage implements UserStorage {
     @Override
     public User getUser(Long id) {
         log.info("{} - Получение пользователя с id: {}", TAG, id);
-        User user = jdbcTemplate.queryForObject(format(""
-                + "SELECT user_id, email, login, name, birthday "
-                + "FROM users "
-                + "WHERE user_id = %d", id), mapper);
-        log.info("{} - Получен пользователь: {}", TAG, user);
-        if (user != null) {
-            user.setFriends(friendsDao.getFriends(id));
+        try {
+            User user = jdbcTemplate.queryForObject(format(""
+                    + "SELECT user_id, email, login, name, birthday "
+                    + "FROM users "
+                    + "WHERE user_id = %d", id), mapper);
+            log.info("{} - Получен пользователь: {}", TAG, user);
+            if (user != null) {
+                user.setFriends(friendsDao.getFriends(id));
+            }
+            return user;
+        } catch (EmptyResultDataAccessException e) {
+            throw new NotFoundException("Не найден пользовтель");
         }
-        return user;
+
     }
 
     @Override
@@ -86,7 +93,8 @@ public class UserDbStorage implements UserStorage {
     public User updateUser(User user) {
         log.info("{} - Обновление пользователя: {}", TAG, user);
         String query = "UPDATE users SET email = ?, login = ?, name = ?, birthday = ? WHERE user_id = ?";
-        int updatedRow = jdbcTemplate.update(query, user.getEmail(), user.getName(), user.getBirthday(), user.getId());
+        int updatedRow = jdbcTemplate.update(query, user.getEmail(), user.getLogin(), user.getName(),
+                user.getBirthday(), user.getId());
         if (updatedRow > 0) {
             log.info("{} - Пользователь {} обновлен", TAG, user);
         } else {

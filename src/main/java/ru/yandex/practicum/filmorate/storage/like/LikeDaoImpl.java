@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
 import ru.yandex.practicum.filmorate.storage.mapper.LikesMapper;
 import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
@@ -36,15 +35,17 @@ public class LikeDaoImpl implements LikeDao {
     }
 
     @Override
-    public Set<User> getLikesFilm(Long filmId) {
+    public Set<Long> getLikesFilm(Long filmId) {
         log.info("{} - Получение всех пользователей лайкнувших фильм с id: {}", TAG, filmId);
         List<Long> usersIds = jdbcTemplate.queryForList(format(""
                 + "SELECT user_id "
                 + "FROM likes "
                 + "WHERE film_id = %d", filmId), Long.class);
-        List<User> userList = userDbStorage.getUsersByIds(usersIds);
+//        List<User> userList = userDbStorage.getUsersByIds(usersIds);
         log.info("{} - Получены пользователи лайкнувшие фильм с id: {}", TAG, filmId);
-        return new TreeSet<>(userList);
+        Set<Long> result = new TreeSet<>();
+        result.addAll(usersIds);
+        return result;
     }
 
     @Override
@@ -62,10 +63,10 @@ public class LikeDaoImpl implements LikeDao {
     @Override
     public void deleteLike(Long filmId, Long userId) {
         log.info("{} - Удаление лайка у фильма с id {} пользователем с id {}", TAG, filmId, userId);
-        jdbcTemplate.update(""
+        jdbcTemplate.update(format(""
                 + "DELETE FROM likes "
-                + "WHERE film_id "
-                + "AND user_id ", filmId, userId);
+                + "WHERE film_id  = %d "
+                + "AND user_id  = %d ", filmId, userId));
         log.info("{} - У фильма с id {} удален лайк пользователем с id {}", TAG, filmId, userId);
     }
 }

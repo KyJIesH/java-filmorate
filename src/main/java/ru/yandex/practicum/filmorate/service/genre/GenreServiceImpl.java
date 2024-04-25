@@ -16,7 +16,7 @@ public class GenreServiceImpl implements GenreService {
 
     @Override
     public Genre getGenre(Integer id) {
-        return genreDao.add(id);
+        return genreDao.getGenre(id);
     }
 
     @Override

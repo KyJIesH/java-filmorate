@@ -43,7 +43,9 @@ public class UserController {
     public ResponseEntity<Set<User>> getFriendsUser(@PathVariable Long id) {
         log.info("{} - Пришел запрос на получение всех друзей пользователя по id {}", TAG, id);
         userService.checkUserId(id);
-        return new ResponseEntity<>(userService.getFriendsUser(id), HttpStatus.OK);
+        userService.getUser(id);
+        Set<User> users = userService.getFriendsUser(id);
+        return new ResponseEntity<>(users, HttpStatus.OK);
     }
 
     @GetMapping("/{id}/friends/common/{otherId}")

@@ -7,7 +7,7 @@ import java.util.Set;
 
 public interface GenreDao {
 
-    Genre add(Integer id);
+    Genre getGenre(Integer id);
 
     List<Genre> getAll();
 

@@ -3,10 +3,14 @@ package ru.yandex.practicum.filmorate.storage.film;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.exception.BadRequestException;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.mapper.FilmMapper;
 
@@ -30,18 +34,23 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public Film createFilm(Film film) {
         log.info("{} - Создание фильма", TAG);
-        String query = "INSERT INTO films (name, description, release_date, duration_minutes) VALUES (?, ?, ?, ?)";
+        String query = "INSERT INTO films (name, description, release_date, duration_minutes, mpa_rating_id) VALUES (?, ?, ?, ?, ?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
-        jdbcTemplate.update(connection -> {
-            PreparedStatement ps = connection
-                    .prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
-            ps.setString(1, film.getName());
-            ps.setString(2, film.getDescription());
-            ps.setDate(3, Date.valueOf(film.getReleaseDate()));
-            ps.setInt(4, (int) film.getDuration().toMinutes());
-            return ps;
-        }, keyHolder);
+        try {
+            jdbcTemplate.update(connection -> {
+                PreparedStatement ps = connection
+                        .prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+                ps.setString(1, film.getName());
+                ps.setString(2, film.getDescription());
+                ps.setDate(3, Date.valueOf(film.getReleaseDate()));
+                ps.setLong(4, film.getDuration().toSeconds());
+                ps.setLong(5, film.getMpa().getId());
+                return ps;
+            }, keyHolder);
+        } catch (DataIntegrityViolationException e) {
+            throw new BadRequestException("Некорректный рейтинг");
+        }
 
         Long id = (Long) keyHolder.getKey();
         log.info("{} - Получен фильм с id: {}", TAG, id);
@@ -52,7 +61,7 @@ public class FilmDbStorage implements FilmStorage {
     public List<Film> getAllFilms() {
         log.info("{} - Получение всех фильмов", TAG);
         List<Film> films = jdbcTemplate.query(""
-                + "SELECT film_id, name, description, release_date, duration_minutes "
+                + "SELECT * "
                 + "FROM films", mapper);
         log.info("{} - Получены фильмы: {}", TAG, films);
         return films;
@@ -61,12 +70,16 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public Film getFilm(Long id) {
         log.info("{} - Получение фильма с id: {}",TAG, id);
-        Film film = jdbcTemplate.queryForObject(format(""
-                + "SELECT film_id, name, description, release_date, duration_minutes "
-                + "FROM films "
-                + "WHERE film_id = %d", id), mapper);
-        log.info("{} - Получен фильм: {}", TAG, film);
-        return film;
+        try {
+            Film film = jdbcTemplate.queryForObject(format(""
+                    + "SELECT * "
+                    + "FROM films "
+                    + "WHERE film_id = %d", id), mapper);
+            log.info("{} - Получен фильм: {}", TAG, film);
+            return film;
+        } catch (EmptyResultDataAccessException e) {
+            throw new NotFoundException("Фильм не найден");
+        }
     }
 
     @Override

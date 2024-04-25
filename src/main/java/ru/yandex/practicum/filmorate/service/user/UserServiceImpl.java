@@ -58,10 +58,7 @@ public class UserServiceImpl implements UserService {
     public void putFriendsUser(Long firstUserId, Long secondUserId) {
         log.info("{} - Обработка запроса на добавление пользователя {} в друзья к пользователю {}",
                 TAG, firstUserId, secondUserId);
-        userStorage.getUser(firstUserId).getFriends().add(secondUserId);
-        userStorage.getUser(secondUserId).getFriends().add(firstUserId);
         friendsDao.addFriend(firstUserId, secondUserId);
-        friendsDao.addFriend(secondUserId, firstUserId);
     }
 
     @Override
@@ -71,7 +68,6 @@ public class UserServiceImpl implements UserService {
         userStorage.getUser(firstUserId).getFriends().remove(secondUserId);
         userStorage.getUser(secondUserId).getFriends().remove(firstUserId);
         friendsDao.deleteFriend(firstUserId, secondUserId);
-        friendsDao.deleteFriend(secondUserId, firstUserId);
     }
 
     @Override

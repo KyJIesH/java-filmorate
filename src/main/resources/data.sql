@@ -1,4 +1,4 @@
-MERGE INTO mpa_ratings (mpa_rating_id, name)
+MERGE INTO mpa_ratings (rating_id, name)
     VALUES (1, 'G'),
            (2, 'PG'),
            (3, 'PG-13'),

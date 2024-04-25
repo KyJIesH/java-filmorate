@@ -2,8 +2,11 @@ package ru.yandex.practicum.filmorate.storage.friends;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.storage.mapper.FriendsMapper;
 
 import java.util.List;
@@ -23,12 +26,16 @@ public class FriendsDaoImpl implements FriendsDao {
     @Override
     public void addFriend(Long firstUserId, Long secondUserId) {
         log.info("{} - Добавление пользователя с id: {} в друзья к пользователю с id: {}", TAG, firstUserId, secondUserId);
-        String query = "INSERT INTO friends (first_user_id, second_user_id) VALUES (?, ?), (?, ?)";
-        int updatedRow = jdbcTemplate.update(query, firstUserId, secondUserId);
-        if (updatedRow > 0) {
-            log.info("{} - Пользователь с id: {} добавлен в друзья к пользователю с id: {}", TAG, firstUserId, secondUserId);
-        } else {
-            log.error("{} - Пользователь с id: {} НЕ добавлен в друзья к пользователю с id: {}", TAG, firstUserId, secondUserId);
+        String query = "INSERT INTO friends (first_user_id, second_user_id) VALUES (?, ?)";
+        try {
+            int updatedRow = jdbcTemplate.update(query, firstUserId, secondUserId);
+            if (updatedRow > 0) {
+                log.info("{} - Пользователь с id: {} добавлен в друзья к пользователю с id: {}", TAG, firstUserId, secondUserId);
+            } else {
+                log.error("{} - Пользователь с id: {} НЕ добавлен в друзья к пользователю с id: {}", TAG, firstUserId, secondUserId);
+            }
+        } catch (DataAccessException e) {
+            throw new NotFoundException("При добавлени друга пользователь не найден");
         }
     }
 
@@ -47,11 +54,15 @@ public class FriendsDaoImpl implements FriendsDao {
     @Override
     public Set<Long> getFriends(Long id) {
         log.info("{} - Получение всех друзей пользователя с id: {}", TAG, id);
-        List<Long> friends = jdbcTemplate.queryForList(format(""
-                + "SELECT * "
-                + "FROM friends "
-                + "WHERE first_user_id = %d", id), Long.class);
-        log.info("{} - Получены все друзья пользователя с id: {}", TAG, id);
-        return new TreeSet<>(friends);
+        try {
+            List<Long> friends = jdbcTemplate.queryForList(format(""
+                    + "SELECT second_user_id "
+                    + "FROM friends "
+                    + "WHERE first_user_id = %d", id), Long.class);
+            log.info("{} - Получены все друзья пользователя с id: {}", TAG, id);
+            return new TreeSet<>(friends);
+        } catch (EmptyResultDataAccessException e) {
+            throw new NotFoundException("Пользователь не найден");
+        }
     }
 }
