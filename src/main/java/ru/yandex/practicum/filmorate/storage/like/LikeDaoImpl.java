@@ -4,10 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
+import ru.yandex.practicum.filmorate.model.Like;
 import ru.yandex.practicum.filmorate.storage.mapper.LikesMapper;
-import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
 
 import java.util.List;
 import java.util.Set;
@@ -21,8 +19,6 @@ import static java.lang.String.format;
 public class LikeDaoImpl implements LikeDao {
     private static final String TAG = "LIKE DAO IMPL";
     private JdbcTemplate jdbcTemplate;
-    private final UserDbStorage userDbStorage;
-    private final FilmDbStorage filmDbStorage;
     private final LikesMapper likesMapper = new LikesMapper();
 
     @Override
@@ -41,7 +37,6 @@ public class LikeDaoImpl implements LikeDao {
                 + "SELECT user_id "
                 + "FROM likes "
                 + "WHERE film_id = %d", filmId), Long.class);
-//        List<User> userList = userDbStorage.getUsersByIds(usersIds);
         log.info("{} - Получены пользователи лайкнувшие фильм с id: {}", TAG, filmId);
         Set<Long> result = new TreeSet<>();
         result.addAll(usersIds);
@@ -49,15 +44,12 @@ public class LikeDaoImpl implements LikeDao {
     }
 
     @Override
-    public Set<Film> getLikesUser(Long userId) {
-        log.info("{} - Получение всех фильмов отмеченных пользователем с id: {}", TAG, userId);
-        List<Long> filmsIds = jdbcTemplate.queryForList(format(""
-                + "SELECT film_id "
-                + "FROM likes "
-                + "WHERE user_id = %d", userId), Long.class);
-        List<Film> filmsList = filmDbStorage.getFilmsByIds(filmsIds);
-        log.info("{} - Получены фильмы отмеченные пользователем с id: {}", TAG, userId);
-        return new TreeSet<>(filmsList);
+    public List<Like> getLikes() {
+        log.info("{} - Получение всех лайков фильма", TAG);
+        String query = "SELECT * FROM likes";
+        List<Like> likes = jdbcTemplate.query(query, likesMapper);
+        log.info("{} - Получены все лайки фильма", TAG);
+        return likes;
     }
 
     @Override

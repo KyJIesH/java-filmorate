@@ -15,7 +15,7 @@ public class MpaRatingMapper implements RowMapper<MpaRating> {
     public MpaRating mapRow(ResultSet rs, int rowNum) throws SQLException {
         log.info("{} - Начат mapping сущности mpaRating", TAG);
         MpaRating mpaRating = new MpaRating();
-        Integer id = rs.getInt("rating_id");
+        Long id = rs.getLong("rating_id");
         String name = rs.getString("name");
         mpaRating.setId(id);
         mpaRating.setName(name);

@@ -22,7 +22,7 @@ public class MpaRattingDaoImpl implements MpaRatingDao {
     private final MpaRatingMapper mpaRatingMapper = new MpaRatingMapper();
 
     @Override
-    public MpaRating getRatingFilm(Integer id) {
+    public MpaRating getRatingFilm(Long id) {
         log.info("{} - Получение рейтинга фильма по id: {}", TAG, id);
         try {
             MpaRating mpaRating = jdbcTemplate.queryForObject(format(""

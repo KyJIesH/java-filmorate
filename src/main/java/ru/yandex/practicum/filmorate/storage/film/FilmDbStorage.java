@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.storage.film;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -17,7 +18,6 @@ import ru.yandex.practicum.filmorate.storage.mapper.FilmMapper;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.List;
 
 import static java.lang.String.format;
@@ -34,7 +34,8 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public Film createFilm(Film film) {
         log.info("{} - Создание фильма", TAG);
-        String query = "INSERT INTO films (name, description, release_date, duration_minutes, mpa_rating_id) VALUES (?, ?, ?, ?, ?)";
+        String query = "INSERT INTO films (name, description, release_date, duration_minutes, mpa_rating_id) " +
+                "VALUES (?, ?, ?, ?, ?) ";
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         try {
@@ -69,7 +70,7 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film getFilm(Long id) {
-        log.info("{} - Получение фильма с id: {}",TAG, id);
+        log.info("{} - Получение фильма с id: {}", TAG, id);
         try {
             Film film = jdbcTemplate.queryForObject(format(""
                     + "SELECT * "
@@ -83,11 +84,20 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public List<Film> getFilmsByIds(List<Long> ids) {
-        String query = "SELECT * FROM films WHERE film_id = ANY(?)";
-        List<Object> requestParam = new ArrayList<>();
-        requestParam.add(ids.toArray());
-        return jdbcTemplate.query(query, mapper, requestParam);
+    public List<Film> getPopularFilms(Long count) {
+        log.info("{} - Получение популярных фильмов", TAG);
+        try {
+            String query = "SELECT * FROM films " +
+                    "INNER JOIN (SELECT film_id, COUNT(*) likes_count " +
+                    "FROM likes " +
+                    "GROUP BY film_id " +
+                    "LIMIT ?) AS temp ON films.film_id = temp.film_id " +
+                    "ORDER BY likes_count DESC ";
+            return jdbcTemplate.query(query, mapper, count);
+        } catch (DataAccessException e) {
+            log.error("{} - Ошибка при получении списка популярных фильмов", TAG, e);
+            throw e;
+        }
     }
 
     @Override

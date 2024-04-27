@@ -7,7 +7,7 @@ import javax.validation.constraints.NotNull;
 @Data
 public class MpaRating {
     @NotNull
-    private Integer id;
+    private Long id;
     @NotBlank(message = "Пустое имя")
     private String name;
 }

@@ -18,7 +18,7 @@ public class FilmMapper implements RowMapper<Film> {
     public Film mapRow(ResultSet rs, int rowNum) throws SQLException {
         log.info("{} - Начат mapping сущности film", TAG);
         MpaRating mpaRating = new MpaRating();
-        Integer mpaRatingId = rs.getInt("mpa_rating_id");
+        Long mpaRatingId = rs.getLong("mpa_rating_id");
         mpaRating.setId(mpaRatingId);
 
         Film film = new Film();

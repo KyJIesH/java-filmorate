@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Deprecated
 @Slf4j
 @Component
 public class InMemoryFilmStorage implements FilmStorage {
@@ -44,11 +45,6 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public List<Film> getFilmsByIds(List<Long> ids) {
-        return null;
-    }
-
-    @Override
     public Film updateFilm(Film film) {
         log.info("{} - Попытка обновления фильма {}", TAG, film);
         // проверка на исключение
@@ -65,5 +61,10 @@ public class InMemoryFilmStorage implements FilmStorage {
             throw new NotFoundException("Удаляемый фильм не найден");
         }
         films.remove(id);
+    }
+
+    @Override
+    public List<Film> getPopularFilms(Long count) {
+        return List.of();
     }
 }

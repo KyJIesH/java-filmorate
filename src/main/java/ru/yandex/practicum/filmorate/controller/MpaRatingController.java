@@ -22,7 +22,7 @@ public class MpaRatingController {
     private final MpaRatingService mpaRatingService;
 
     @GetMapping("/{id}")
-    public ResponseEntity<MpaRating> getRatingFilm(@PathVariable Integer id) {
+    public ResponseEntity<MpaRating> getRatingFilm(@PathVariable Long id) {
         log.info("{} -  Пришел запрос на получение рейтинга фильма с id {}", TAG, id);
         return new ResponseEntity<>(mpaRatingService.getRatingFilm(id), HttpStatus.OK);
     }

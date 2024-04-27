@@ -12,8 +12,7 @@ import ru.yandex.practicum.filmorate.storage.like.LikeDao;
 import ru.yandex.practicum.filmorate.storage.mpaRating.MpaRatingDao;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -38,13 +37,7 @@ public class FilmServiceImpl implements FilmService {
     @Override
     public List<Film> getAllFilms() {
         log.info("{} - Обработка запроса на получение всех фильмов", TAG);
-        List<Film> films = filmStorage.getAllFilms();
-        for (Film film : films) {
-            film.setLikes(likeDao.getLikesFilm(film.getId()));
-            film.setGenres(genreDao.getAllGenresFilms(film.getId()));
-            film.setMpa(mpaRatingDao.getRatingFilm(film.getMpa().getId()));
-        }
-        return films;
+        return filmStorage.getAllFilms();
     }
 
     @Override
@@ -86,29 +79,11 @@ public class FilmServiceImpl implements FilmService {
         film.getLikes().remove(user.getId());
     }
 
+
     @Override
-    public Set<Film> getPopularFilm(Long count) {
+    public List<Film> getPopularFilm(Long count) {
         log.info("{} - Обработка запроса на получение {} наиболее популярных фильмов по количеству лайков", TAG, count);
-        Set<Film> temp = new HashSet<>(getAllFilms());
-        Set<Film> filmsLikes = new TreeSet<>(new Comparator<Film>() {
-            @Override
-            public int compare(Film f1, Film f2) {
-                if (f1.getLikes().size() == f2.getLikes().size() && Objects.equals(f1.getId(), f2.getId())) {
-                    return 0;
-                } else if (f1.getLikes().size() < f2.getLikes().size()) {
-                    return 1;
-                } else {
-                    return -1;
-                }
-            }
-        });
-        filmsLikes.addAll(
-                temp.stream()
-                        .skip(temp.size() > count ? temp.size() - count : 0)
-                        .filter(film -> !film.getLikes().isEmpty())
-                        .limit(count)
-                        .collect(Collectors.toSet()));
-        return filmsLikes;
+        return filmStorage.getPopularFilms(count);
     }
 
     public void checkFilmId(Long id) {

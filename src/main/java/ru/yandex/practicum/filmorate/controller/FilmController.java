@@ -11,7 +11,6 @@ import ru.yandex.practicum.filmorate.service.user.UserService;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.Set;
 
 @RestController
 @RequestMapping("/films")
@@ -42,7 +41,7 @@ public class FilmController {
     }
 
     @GetMapping("/popular")
-    public ResponseEntity<Set<Film>> getPopularFilm(@RequestParam(defaultValue = "10") Long count) {
+    public ResponseEntity<List<Film>> getPopularFilm(@RequestParam(defaultValue = "10") Long count) {
         log.info("{} - Пришел запрос на получение первых {} фильмов по количеству лайков", TAG, count);
         return new ResponseEntity<>(filmService.getPopularFilm(count), HttpStatus.OK);
     }

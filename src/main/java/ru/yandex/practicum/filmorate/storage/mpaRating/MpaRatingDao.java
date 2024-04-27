@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface MpaRatingDao {
 
-    MpaRating getRatingFilm(Integer id);
+    MpaRating getRatingFilm(Long id);
 
     List<MpaRating> getRatingsFilms();
 }

@@ -16,7 +16,7 @@ public class MpaRatingServiceImpl implements MpaRatingService {
     private final MpaRatingDao mpaRatingDao;
 
     @Override
-    public MpaRating getRatingFilm(Integer id) {
+    public MpaRating getRatingFilm(Long id) {
         return mpaRatingDao.getRatingFilm(id);
     }
 
