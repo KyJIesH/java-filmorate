@@ -13,7 +13,7 @@
 
 ## sprint 11
 ### Схема базы данных
-![](https://github.com/KyJIesH/java-filmorate/blob/main/src/main/resources/scheme.png?raw=true)
+![](https://github.com/KyJIesH/java-filmorate/blob/main/src/main/resources/schema.png?raw=true)
 
 ### Примеры запросов
 #### FILMS

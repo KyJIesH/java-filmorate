@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.friends.FriendsDao;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.HashSet;
@@ -17,6 +18,7 @@ import java.util.Set;
 public class UserServiceImpl implements UserService {
     private static final String TAG = "USER SERVICE";
     private final UserStorage userStorage;
+    private final FriendsDao friendsDao;
 
     @Override
     public User createUser(User user) {
@@ -56,8 +58,7 @@ public class UserServiceImpl implements UserService {
     public void putFriendsUser(Long firstUserId, Long secondUserId) {
         log.info("{} - Обработка запроса на добавление пользователя {} в друзья к пользователю {}",
                 TAG, firstUserId, secondUserId);
-        userStorage.getUser(firstUserId).getFriends().add(secondUserId);
-        userStorage.getUser(secondUserId).getFriends().add(firstUserId);
+        friendsDao.addFriend(firstUserId, secondUserId);
     }
 
     @Override
@@ -66,12 +67,13 @@ public class UserServiceImpl implements UserService {
                 TAG, firstUserId, secondUserId);
         userStorage.getUser(firstUserId).getFriends().remove(secondUserId);
         userStorage.getUser(secondUserId).getFriends().remove(firstUserId);
+        friendsDao.deleteFriend(firstUserId, secondUserId);
     }
 
     @Override
     public Set<User> getFriendsUser(Long id) {
         log.info("{} - Обработка запроса на получение всех друзей пользователя по id {}", TAG, id);
-        Set<Long> friendsIds = userStorage.getUser(id).getFriends();
+        Set<Long> friendsIds = friendsDao.getFriends(id);
         Set<User> friends = new HashSet<>();
         for (Long userId : friendsIds) {
             friends.add(getUser(userId));

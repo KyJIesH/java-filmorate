@@ -10,10 +10,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Deprecated
 @Slf4j
 @Component
 public class InMemoryUserStorage implements UserStorage {
-
     private Map<Long, User> users = new HashMap<>();
     private static final String TAG = "USER STORAGE";
     private long idGenerator = 1;
@@ -45,6 +45,11 @@ public class InMemoryUserStorage implements UserStorage {
             throw new NotFoundException("Пользователь не найден");
         }
         return users.get(id);
+    }
+
+    @Override
+    public List<User> getUsersByIds(List<Long> ids) {
+        return null;
     }
 
     @Override

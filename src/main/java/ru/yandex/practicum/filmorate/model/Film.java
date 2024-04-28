@@ -27,5 +27,7 @@ public class Film {
     @DurationValidator
     @JsonFormat(shape = NUMBER_INT)
     private Duration duration;
+    private MpaRating mpa;
+    private Set<Genre> genres = new TreeSet<>();
     private Set<Long> likes = new TreeSet<>();
 }
